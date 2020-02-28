@@ -1,0 +1,203 @@
+/*
+* @Author: adamov
+* @Date:   2020-02-26 21:18:44
+* @Last Modified by:   adamov
+* @Last Modified time: 2020-02-28 17:54:35
+*/
+
+#include "make_image.h"
+#include <cairo-svg.h>
+#include <math.h>
+
+using namespace std;
+
+void draw_quadrilateral(cairo_t *cr, 
+	double x1, double y1, 
+	double x2, double y2, 
+	double x3, double y3, 
+	double x4, double y4)
+{
+	/*
+	* Adds quadrilateralspecified by four points in order to context cr
+	*
+	*/
+	cairo_move_to(cr, x1, y1);
+	cairo_line_to(cr, x2, y2);
+	cairo_line_to(cr, x3, y3);
+	cairo_line_to(cr, x4, y4);
+	cairo_close_path(cr);
+}
+
+
+void lozenge_paths_to_image(vector<vector<int>> slices, const char* filename, double image_height, double relative_line_width)
+{
+	/*
+	* Given slices, which contains N nonintersecting paths from from (0,0), (0, 1), ..., (0, N-1) to (2N, N), (2N, N+1), ... (2N, 2N-1)
+	* respectively such that every step in a path is either (1,0) or (1,1), generates an image of the lozenge tiling corresponding to it
+	* 
+	* Output will be saved in filename
+	* 
+	* Size of the image will have aspect ratio T*sqrt(3) by 2*N+T (approximate due to slight transparent border), and height image_height px
+	* 
+	* Width of outlines of tiles determined by relative_line_width (value of 1 causes outlines to almost entirely cover tiles)
+	* 
+	* If relative_line_width == 0.0 then will not draw outlines of tiles (significantly decreases file size)
+	*
+	*/
+	int T = slices.size()-1;
+	int N = slices[0].size();
+	int height = slices[T][N-1];
+	int S = height-N+1;
+
+	double scale_factor = 0.96*image_height/(2*N+T);
+	bool outline = (relative_line_width == 0);
+
+	cairo_surface_t *surface;
+	cairo_t *cr;
+
+	surface = cairo_svg_surface_create(filename, 0.04*image_height+scale_factor*sqrt(3)*(T), 0.04*image_height+scale_factor*(2*N+T));
+	cr = cairo_create(surface);
+
+	cairo_matrix_t hex;  // this will be the transform which makes the image appear as equilateral triangular grid
+	cairo_matrix_init(&hex, scale_factor*sqrt(3), scale_factor, 0.0, -2*scale_factor, 0.02*image_height , 0.02*image_height+scale_factor*(2*height-S+2));
+
+	cairo_set_line_width(cr, scale_factor*relative_line_width);  // sets linewidth of outlines of tiles
+	cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+	cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+	cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);  // color of outlines
+	cairo_save(cr);
+
+	cairo_transform(cr, &hex);
+
+	//
+	// FILLING
+	//
+
+	// lateral faces
+	for (int i = 0; i < N; i++)
+	{
+		for (int t = 0; t < T; t++)
+		{
+			draw_quadrilateral(cr, 
+				t, slices[t][i], 
+				t+1, slices[t+1][i], 
+				t+1, slices[t+1][i]+1, 
+				t, slices[t][i]+1);
+
+			if (slices[t][i] == slices[t+1][i]) cairo_set_source_rgb(cr, 0.8, 0.3, 0.3);  // left facing faces				
+			else cairo_set_source_rgb(cr, 0.5, 0.3, 0.3);  // right facing faces
+			
+			cairo_fill(cr);
+		}
+	}
+
+	// horizontal faces
+	cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);	
+
+	for (int t = 1; t < T; t++)
+	{
+		for (int y = max(0, t-T+S); y < slices[t][0]; y++)  // faces with z coordinate 0 when viewed in 3d
+		{
+			draw_quadrilateral(cr, 
+				t, y, 
+				t+1, y+1, 
+				t, y+1, 
+				t-1, y);
+			cairo_fill(cr);
+		}
+		for (int i = 0; i < N-1; i++)
+		{
+			for (int y = slices[t][i]+1; y < slices[t][i+1]; y++)  // faces with z coordinate strictly between 0 and N in 3d
+			{
+				draw_quadrilateral(cr, 
+					t, y, 
+					t+1, y+1, 
+					t, y+1, 
+					t-1, y);
+				cairo_fill(cr);
+			}
+		}
+		for (int y = slices[t][N-1]+1; y <= min(t+N-1, S+N-1); y++)  // faces with z coordinate N when viewed in 3d
+		{
+			draw_quadrilateral(cr, 
+				t, y, 
+				t+1, y+1, 
+				t, y+1, 
+				t-1, y);
+			cairo_fill(cr);
+		}		
+	}
+
+	//
+	// OUTLINES
+	//
+
+	if (outline)
+	{
+		// lateral faces
+		for (int i = 0; i < N; i++)
+		{
+			for (int t = 0; t < T; t++)
+			{
+				draw_quadrilateral(cr, 
+					t, slices[t][i], 
+					t+1, slices[t+1][i], 
+					t+1, slices[t+1][i]+1, 
+					t, slices[t][i]+1);
+				cairo_restore(cr);  // makes linewidths unaffected by transformation (transformation unequally scales x and y)
+				cairo_stroke(cr);
+				cairo_save(cr);
+				cairo_transform(cr, &hex);
+			}
+		}
+
+		// horizontal faces
+		for (int t = 1; t < T; t++)
+		{
+			for (int y = max(0, t-T+S); y < slices[t][0]; y++)  // faces with z coordinate 0 when viewed in 3d
+			{
+				draw_quadrilateral(cr, 
+					t, y, 
+					t+1, y+1, 
+					t, y+1, 
+					t-1, y);
+				cairo_restore(cr);
+				cairo_stroke(cr);
+				cairo_save(cr);
+				cairo_transform(cr, &hex);
+			}
+			for (int i = 0; i < N-1; i++)
+			{
+				for (int y = slices[t][i]+1; y < slices[t][i+1]; y++)  // faces with z coordinate strictly between 0 and N in 3d
+				{
+					draw_quadrilateral(cr, 
+						t, y, 
+						t+1, y+1, 
+						t, y+1, 
+						t-1, y);
+					cairo_restore(cr);
+					cairo_stroke(cr);
+					cairo_save(cr);
+					cairo_transform(cr, &hex);
+				}
+			}
+			for (int y = slices[t][N-1]+1; y <= min(t+N-1, S+N-1); y++)  // faces with z coordinate N when viewed in 3d
+			{
+				draw_quadrilateral(cr, 
+					t, y, 
+					t+1, y+1, 
+					t, y+1, 
+					t-1, y);
+				cairo_restore(cr);
+				cairo_stroke(cr);
+				cairo_save(cr);
+				cairo_transform(cr, &hex);
+			}		
+		}
+	}
+
+	cairo_surface_destroy(surface);
+	cairo_destroy(cr);
+}
+
+
