@@ -1,8 +1,8 @@
 /*
 * @Author: adamov
 * @Date:   2020-02-28 17:18:37
-* @Last Modified by:   adamov
-* @Last Modified time: 2020-02-28 17:52:11
+* @Last Modified by:   adamov1
+* @Last Modified time: 2020-02-28 18:57:41
 */
 
 #include "lozenge.h"
@@ -19,6 +19,6 @@ int main(int argc, char* argv[])
 	{
 		vector<vector<int>> slices = generate_lozenge_paths(N);
 
-		lozenge_paths_to_image(slices, "tiling.svg", 1000, 0.0);
+		lozenge_paths_to_image(slices, "hex_tiling.svg", 1000, 0.05, true);
 	}
 }

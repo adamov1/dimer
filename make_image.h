@@ -3,6 +3,6 @@
 
 #include <vector>
 
-void lozenge_paths_to_image(std::vector<std::vector<int>> slices, const char* filename, double image_height, double relative_line_width);
+void lozenge_paths_to_image(std::vector<std::vector<int>> slices, const char* filename, double image_height, double relative_line_width, bool arctic_circle = false);
 
 #endif
