@@ -2,7 +2,7 @@
 * @Author: adamov
 * @Date:   2020-02-26 21:18:44
 * @Last Modified by:   adamov1
-* @Last Modified time: 2020-03-01 02:18:00
+* @Last Modified time: 2020-03-01 02:59:12
 */
 
 #include "make_image.h"
@@ -70,7 +70,7 @@ void lozenge_paths_to_image(vector<vector<int>> slices, const char* filename, do
 	int T = slices.size()-1;
 	int N = slices[0].size();
 	int height = slices[T][N-1];
-	int S = height-N+1;
+	int S = slices[T][0];
 
 	double scale_factor = 0.96*image_height/(2*N+T);
 	bool outline = (relative_line_width != 0);

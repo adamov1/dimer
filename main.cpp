@@ -2,7 +2,7 @@
 * @Author: adamov
 * @Date:   2020-02-28 17:18:37
 * @Last Modified by:   adamov1
-* @Last Modified time: 2020-03-01 01:52:59
+* @Last Modified time: 2020-03-01 02:27:08
 */
 
 #include "lozenge.h"
@@ -23,12 +23,12 @@ int main(int argc, char* argv[])
 	*/
 	int N = 8;
 	int size = 1000;
-	double width = 0.0;
+	double line_width = 0.0;
 	bool arctic_circle = false;
 
 	if (argc >= 2) N = max(1, stoi(argv[1]));
 	if (argc >= 3) size = max(1, stoi(argv[2]));
-	if (argc >= 4) width = max(0.0, stod(argv[3]));
+	if (argc >= 4) line_width = max(0.0, stod(argv[3]));
 	if (argc >= 5) arctic_circle = ( argv[4][0] == '1' );
 
 	cout << setprecision(4) << fixed;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	cout << "Generating paths took:\t" << dur1.count() << " seconds." << endl;
 
 	auto start2 = steady_clock::now();
-	lozenge_paths_to_image(slices, "hex_tiling.svg", size, width, arctic_circle);
+	lozenge_paths_to_image(slices, "hex_tiling.svg", size, line_width, arctic_circle);
 	auto end2 = steady_clock::now();
 	duration<double> dur2 = end2-start2;
 	cout << "Creating SVG file took:\t" << dur2.count() << " seconds." << endl;
