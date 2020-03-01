@@ -1,8 +1,8 @@
 /*
 * @Author: adamov
 * @Date:   2020-02-26 18:58:52
-* @Last Modified by:   adamov
-* @Last Modified time: 2020-02-28 17:31:47
+* @Last Modified by:   adamov1
+* @Last Modified time: 2020-02-29 23:41:23
 * 
 * Based on algorithm described in arXiv:0804.3071
 */
@@ -17,16 +17,13 @@ default_random_engine generator(random_device{}());
 discrete_distribution<int> D(int a, int b, int n)
 {
 	/*
-	* Generates distribution D on {0, 1, ..., n} such that k has weight (a)^^k/(b)^^k where (-)^^k represents the rising factorial
+	* Returns distribution D on {0, 1, ..., n} such that k has weight (a)^^k/(b)^^k where (-)^^k represents the rising factorial
 	*
 	*/
 	vector<double> weights(n+1);
-	weights[0] = 1;
+	weights[0] = 1.0;
 
-	for (int k = 1; k<=n; k++)
-	{
-		weights[k]=weights[k-1]*((double)(a+k-1)/(double)(b+k-1));
-	}
+	for (int k = 0; k < n; k++) weights[k+1] = weights[k]*(a+k)/(b+k);
 
 	return discrete_distribution<int> (weights.begin(), weights.end());
 }
@@ -44,52 +41,28 @@ void push_up(vector<vector<int>> &slices)
 	int N = slices[0].size();
 	int S = slices[T][N-1]-N+1;
 
-	int newslice[N];
-
-	//slices[t+1] will be X[t+1] and slices[t] will be Y[t] (note that Y[0]=X[0] always)
+	// slices[t+1] will be X[t+1] and slices[t] will be Y[t] (note that Y[0]=X[0] always)
 	for (int t = 0; t < T; t++)
 	{
-		for (int i = 0; i < N; i++)
-		{
-			if (slices[t+1][i]-slices[t][i] == 1) newslice[i] = slices[t+1][i];
-			else if (slices[t+1][i]-slices[t][i] == -1) newslice[i] = slices[t][i];
-			else newslice[i] = -1; //by construction must have slices[t+1][i] == slices[t][i] here, -1 is a placeholder
-		}
-
 		int blockstart;
-		int length = 1;
 		int i = 0;
 
 		while (i < N)
 		{
-			if (newslice[i] != -1)
-			{
-				i++;
-				continue;
-			}
-
 			blockstart = i;
 			i++;
 
-			while (i < N and newslice[i] == -1 and slices[t][i]-slices[t][i-1] == 1)
+			if (slices[t+1][blockstart]-slices[t][blockstart] == 1);  // we can't do anything
+			else if (slices[t+1][blockstart]-slices[t][blockstart] == -1) slices[t+1][blockstart]++;  // we must push up
+			else 
 			{
-				length++;
-				i++;
+				while (i < N and slices[t+1][i] == slices[t][i] and slices[t][i]-slices[t][i-1] == 1) i++;
+
+				int xi = D(slices[t][blockstart]+T-t-S-1, slices[t][blockstart]+1, i-blockstart)(generator);
+
+				for (int j = blockstart+xi; j < i; j++) slices[t+1][j]++;
 			}
-
-			discrete_distribution<int> dist = D(slices[t][blockstart]+T-t-S-1, slices[t][blockstart]+1, length);
-			int xi = dist(generator);
-
-			for (int j = 0; j < length; j++)
-			{
-				if (j < xi) newslice[blockstart+j] = slices[t][blockstart+j];
-				else newslice[blockstart+j] = slices[t][blockstart+j]+1;
-			}
-
-			length = 1;
 		}
-
-		for (int i = 0; i < N; i++) slices[t+1][i] = newslice[i];
 	}
 }
 

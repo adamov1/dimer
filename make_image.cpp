@@ -2,7 +2,7 @@
 * @Author: adamov
 * @Date:   2020-02-26 21:18:44
 * @Last Modified by:   adamov1
-* @Last Modified time: 2020-02-28 18:53:31
+* @Last Modified time: 2020-03-01 02:18:00
 */
 
 #include "make_image.h"
@@ -63,9 +63,9 @@ void lozenge_paths_to_image(vector<vector<int>> slices, const char* filename, do
 		horizontal_g = 0.9, 
 		horizontal_b = 0.9,
 
-		arctic_r = 0.8, 
-		arctic_g = 0.95, 
-		arctic_b = 0.95;
+		arctic_r = 0.9, 
+		arctic_g = 0.5, 
+		arctic_b = 0.5;
 
 	int T = slices.size()-1;
 	int N = slices[0].size();
