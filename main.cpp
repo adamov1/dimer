@@ -2,7 +2,7 @@
 * @Author: adamov
 * @Date:   2020-02-28 17:18:37
 * @Last Modified by:   adamov1
-* @Last Modified time: 2020-03-01 02:27:08
+* @Last Modified time: 2020-03-01 21:04:39
 */
 
 #include "lozenge.h"
@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
 #include <chrono>
 
 using namespace std;
@@ -18,7 +19,7 @@ using namespace std::chrono;
 int main(int argc, char* argv[])
 {
 	/*
-	* Execute by running ./tile_background <N> <size> <line_width> <arctic_circle> where arctic_circle is either 0 or 1
+	* Execute by running ./tile_background <N> <size> <line_width> <arctic_circle>
 	*
 	*/
 	int N = 8;
@@ -29,7 +30,7 @@ int main(int argc, char* argv[])
 	if (argc >= 2) N = max(1, stoi(argv[1]));
 	if (argc >= 3) size = max(1, stoi(argv[2]));
 	if (argc >= 4) line_width = max(0.0, stod(argv[3]));
-	if (argc >= 5) arctic_circle = ( argv[4][0] == '1' );
+	if (argc >= 5) arctic_circle = (strcmp(argv[4], "true")==0);
 
 	cout << setprecision(4) << fixed;
 

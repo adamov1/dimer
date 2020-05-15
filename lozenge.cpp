@@ -2,7 +2,7 @@
 * @Author: adamov
 * @Date:   2020-02-26 18:58:52
 * @Last Modified by:   adamov1
-* @Last Modified time: 2020-03-01 19:51:00
+* @Last Modified time: 2020-03-01 19:58:01
 * 
 * Based on algorithm described in arXiv:0804.3071
 */
@@ -61,16 +61,6 @@ void push_up_slice(vector<vector<int>> &slices, int t)
 }
 
 
-void push_up(vector<vector<int>> &slices)
-{
-	/*
-	* Corresponds to the S->S+1 operation in the paper
-	*
-	*/
-	for (int t = 0; t < slices.size()-1; t++) push_up_slice(slices, t);
-}
-
-
 void push_down_slice(vector<vector<int>> &slices, int t)
 {
 	/*
@@ -104,6 +94,17 @@ void push_down_slice(vector<vector<int>> &slices, int t)
 		}
 	}
 }
+
+
+void push_up(vector<vector<int>> &slices)
+{
+	/*
+	* Corresponds to the S->S+1 operation in the paper
+	*
+	*/
+	for (int t = 0; t < slices.size()-1; t++) push_up_slice(slices, t);
+}
+
 
 void push_down(vector<vector<int>> &slices)
 {
