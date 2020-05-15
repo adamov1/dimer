@@ -2,7 +2,7 @@
 * @Author: adamov
 * @Date:   2020-02-26 18:58:52
 * @Last Modified by:   adamov1
-* @Last Modified time: 2020-03-01 19:58:01
+* @Last Modified time: 2020-05-14 22:21:07
 * 
 * Based on algorithm described in arXiv:0804.3071
 */
@@ -116,7 +116,7 @@ void push_down(vector<vector<int>> &slices)
 }
 
 
-vector<vector<int>> generate_lozenge_paths(int N)
+vector<vector<int>> generate_lozenge_paths(int a, int b, int c)
 {
 	/*
 	* Generates uniformly random set of N nonintersecting paths from (0,0), (0, 1), ..., (0, N-1) to (2N, N), (2N, N+1), ... (2N, 2N-1)
@@ -125,12 +125,15 @@ vector<vector<int>> generate_lozenge_paths(int N)
 	* slices is 2d vector where slices[t] is a vector containing the t'th positions of the N paths which make it up
 	*
 	*/
-	int T = 2*N;
+	int N = c;
+	int T = a + b;
+	int S = b;
+
 	vector<vector<int>> slices(T + 1, vector<int> (N));
 
 	for (int t = 0; t <= T; t++) for (int i = 0; i < N; i++) slices[t][i] = i;
 
-	for (int S = 0; S < N; S++) push_up(slices);
+	for (int s = 0; s < S; s++) push_up(slices);
 
 	return slices;
 }

@@ -3,6 +3,6 @@
 
 #include <vector>
 
-std::vector<std::vector<int>> generate_lozenge_paths(int N);
+std::vector<std::vector<int>> generate_lozenge_paths(int a, int b, int c);
 
 #endif
